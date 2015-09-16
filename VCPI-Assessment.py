@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.font import *
 from tkinter.ttk import *
+from win32com.client import GetObject
 import wmi
 import datetime
 
@@ -56,7 +57,10 @@ class Assessment(Tk):
 
     def get_manufacturer(self):
         for computer in self.wmi.Win32_ComputerSystem():
-            return computer.manufacturer
+            if computer.manufacturer != 'To Be Filled By O.E.M.':
+                return computer.manufacturer
+            else:
+                return None
 
     def get_name(self):
         for computer in self.wmi.Win32_ComputerSystem():
@@ -64,7 +68,10 @@ class Assessment(Tk):
 
     def get_model(self):
         for computer in self.wmi.Win32_ComputerSystem():
-            return computer.model
+            if computer.model != 'To Be Filled By O.E.M.':
+                return computer.model
+            else:
+                return None
 
     def get_install_date(self):
         for os in self.wmi.Win32_OperatingSystem():
@@ -84,24 +91,41 @@ class Assessment(Tk):
 
     def get_memory(self):
         for os in self.wmi.Win32_OperatingSystem():
-            return os.totalvisiblememorysize
+            return "{0:.2f}".format(float(os.totalvisiblememorysize) / 1048576)
 
     def get_serial(self):
         for bios in self.wmi.Win32_Bios():
-            return bios.serialnumber
+            if bios.serialnumber != 'To Be Filled By O.E.M.':
+                return bios.serialnumber
+            else:
+                return None
 
     def get_network_address(self):
         return self.wmi.Win32_NetworkAdapterConfiguration()[1].ipaddress[0]
 
+    def get_antivirus(self):
+        self.obj_wmi = GetObject('winmgmts:\\\\.\\root\\SecurityCenter2').InstancesOf('AntiVirusProduct')
+        for antivirus in self.obj_wmi:
+            return antivirus.displayname
+
+    def get_last_user(self):
+        for computer in self.wmi.Win32_ComputerSystem():
+            return computer.username
+
 if __name__ == "__main__":
     app = Assessment(None)
-    print(app.get_os_name())
-    print(app.get_os_version())
     print(app.get_name())
+    print(app.get_manufacturer())
+    print(app.get_os_name())
     print(app.get_model())
+    print(app.get_os_version())
+    print(app.get_install_date())
     print(app.get_architecture())
     print(app.get_domain())
-    print(app.get_network_address())
     print(app.get_processor())
-    print(app.get_install_date())
+    print(app.get_memory())
+    print(app.get_serial())
+    print(app.get_network_address())
+    print(app.get_antivirus())
+    print(app.get_last_user())
     app.mainloop()
