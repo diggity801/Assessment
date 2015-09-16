@@ -42,7 +42,7 @@ class Assessment(Tk):
 
         self.label_four = Label(self, text='Comment', font=self.font)
         self.label_four.grid(column=0, row=3, sticky='W')
-d
+ddd
 if __name__ == "__main__":
     app = Assessment(None)
     app.set_font_size(5)
