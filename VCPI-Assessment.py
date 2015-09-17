@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter.font import *
-from tkinter.ttk import *
 from win32com.client import GetObject
 import wmi
 import datetime
@@ -61,10 +60,10 @@ class Assessment(Tk):
         self.int_variable_two = IntVar(self, 0)
 
         self.check_one = Checkbutton(self, variable=self.int_variable_one)
-        self.check_one.grid(column=2, row=4, sticky='EWS',)
+        self.check_one.grid(column=2, row=4, sticky='WS',)
 
         self.check_one = Checkbutton(self, variable=self.int_variable_two)
-        self.check_one.grid(column=2, row=5, sticky='NEWS')
+        self.check_one.grid(column=2, row=5, sticky='NWS')
 
     def get_os_name(self):
         for os in self.wmi.Win32_OperatingSystem():
