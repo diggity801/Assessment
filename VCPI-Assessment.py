@@ -39,10 +39,10 @@ class Assessment(Tk):
         self.entry_four = Entry(self, font=self.font)
         self.entry_four.grid(column=2, row=3, sticky='WS')
 
-        self.button_one = tkinter.Button(self, text='Query', font=self.font, width=5, height=1, )
+        self.button_one = tkinter.Button(self, text='Query', font=self.font, width=6, height=1, )
         self.button_one.grid(column=1, row=4, sticky='S')
 
-        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=5, height=1)
+        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=6, height=1)
         self.button_two.grid(column=1, row=5, sticky='N')
 
         self.label_one = Label(self, text='Facility ID', font=self.font)
@@ -56,6 +56,15 @@ class Assessment(Tk):
 
         self.label_four = Label(self, text='Comment', font=self.font)
         self.label_four.grid(column=1, row=3, sticky='WS')
+
+        self.int_variable_one = IntVar(self, 0)
+        self.int_variable_two = IntVar(self, 0)
+
+        self.check_one = Checkbutton(self, variable=self.int_variable_one)
+        self.check_one.grid(column=2, row=4, sticky='EWS',)
+
+        self.check_one = Checkbutton(self, variable=self.int_variable_two)
+        self.check_one.grid(column=2, row=5, sticky='NEWS')
 
     def get_os_name(self):
         for os in self.wmi.Win32_OperatingSystem():
