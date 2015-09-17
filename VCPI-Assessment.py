@@ -9,43 +9,53 @@ class Assessment(Tk):
     def __init__(self, parent):
         Tk.__init__(self, parent)
         self.parent = parent
+        self.wmi = wmi.WMI()
         self.initialize()
 
     def initialize(self):
-        self.title('VCPI Assessment')
-        self.wmi = wmi.WMI()
+        self.geometry('250x150')
+        self.title('Assessment')
+        self.font = Font(family='Tahoma', size=9)
+
         self.grid()
-        self.font = Font(family='New Time Roman', size=9)
+        self.grid_columnconfigure(0,weight=1)
+        self.grid_columnconfigure(1,weight=1)
+        self.grid_columnconfigure(2,weight=1)
+        self.grid_rowconfigure(0,weight=5)
+        self.grid_rowconfigure(4,weight=5)
+        self.grid_rowconfigure(5, weight=2)
+        self.grid_rowconfigure(6, weight=2)
+        self.resizable(False, False)
 
         self.entry_one = Entry(self, font=self.font)
-        self.entry_one.grid(column=1, row=0, sticky='E')
+        self.entry_one.grid(column=2, row=0, sticky='WS')
 
         self.entry_two = Entry(self, font=self.font)
-        self.entry_two.grid(column=1, row=1, sticky='E')
+        self.entry_two.grid(column=2, row=1, sticky='WS')
 
         self.entry_three = Entry(self, font=self.font)
-        self.entry_three.grid(column=1, row=2, sticky='E')
+        self.entry_three.grid(column=2, row=2, sticky='WS')
 
         self.entry_four = Entry(self, font=self.font)
-        self.entry_four.grid(column=1, row=3, sticky='E')
+        self.entry_four.grid(column=2, row=3, sticky='WS')
 
-        self.button_one = tkinter.Button(self, text='Query', font=self.font)
-        self.button_one.grid(column=0, row=4, sticky='W')
+        self.button_one = tkinter.Button(self, text='Query', font=self.font, width=5, height=1, )
+        self.button_one.grid(column=1, row=4, sticky='S')
 
-        self.button_two = tkinter.Button(self, text='Save',font=self.font)
-        self.button_two.grid(column=0, row=5, sticky='W')
+        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=5, height=1)
+        self.button_two.grid(column=1, row=5, sticky='N')
 
         self.label_one = Label(self, text='Facility ID', font=self.font)
-        self.label_one.grid(column=0, row=0, sticky='W')
+        self.label_one.grid(column=1, row=0, sticky='WS')
 
         self.label_two = Label(self, text='PC ID', font=self.font)
-        self.label_two.grid(column=0, row=1, sticky='W')
+        self.label_two.grid(column=1, row=1, sticky='WS')
 
         self.label_three = Label(self, text='Location', font=self.font)
-        self.label_three.grid(column=0, row=2, sticky='W')
+        self.label_three.grid(column=1, row=2, sticky='WS')
 
         self.label_four = Label(self, text='Comment', font=self.font)
-        self.label_four.grid(column=0, row=3, sticky='W')
+        self.label_four.grid(column=1, row=3, sticky='WS')
 
     def get_os_name(self):
         for os in self.wmi.Win32_OperatingSystem():
@@ -104,7 +114,7 @@ class Assessment(Tk):
         return self.wmi.Win32_NetworkAdapterConfiguration()[1].ipaddress[0]
 
     def get_antivirus(self):
-        self.obj_wmi = GetObject('winmgmts:\\\\.\\root\\SecurityCenter2').InstancesOf('AntiVirusProduct')
+        self.obj_wmi = GetObject(r'winmgmts:\\.\root\SecurityCenter2').InstancesOf('AntiVirusProduct')
         for antivirus in self.obj_wmi:
             return antivirus.displayname
 
