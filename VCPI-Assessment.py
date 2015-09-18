@@ -87,12 +87,12 @@ class Assessment(Tk):
                 self.wb = load_workbook('test.xlsx')
                 self.ws = self.wb.active
                 self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
-                self.wb.save('test.xlsx')
+                self.wb.save('Assessment Details.xlsx')
             else:
                 self.wb = Workbook()
                 self.ws = self.wb.active
                 self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
-                self.wb.save('test.xlsx')
+                self.wb.save('Assessment Details.xlsx')
 
     def query_system(self):
         self.button_two['state'] = 'active'
@@ -130,7 +130,11 @@ class Assessment(Tk):
 
         if StrictVersion(self.__version__) < StrictVersion('3.3.0'):
             try:
-                subprocess.call('CitrixReceiverEnterprise.exe /silent /noreboot ENABLE_SSON=No ALLOWSAVEPWD=A ENABLE_DYNAMIC_CLIENT_NAME=Yes SERVER_LOCATION=http://pnagent.vcpi.com/Citrix/PNAgent/config.xml')
+                subprocess.call(r'ReceiverCleanupUtility.exe /silent')
+            except:
+                pass
+            try:
+                subprocess.call(r'CitrixReceiverEnterprise.exe /silent /noreboot ENABLE_SSON=No ALLOWSAVEPWD=A ENABLE_DYNAMIC_CLIENT_NAME=Yes SERVER_LOCATION=http://pnagent.vcpi.com/Citrix/PNAgent/config.xml')
             except:
                 pass
 
