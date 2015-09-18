@@ -3,6 +3,7 @@ from tkinter.font import *
 from win32com.client import GetObject
 import wmi
 import datetime
+import threading
 
 class Assessment(Tk):
     def __init__(self, parent):
@@ -10,60 +11,6 @@ class Assessment(Tk):
         self.parent = parent
         self.wmi = wmi.WMI()
         self.initialize()
-
-    def initialize(self):
-        self.geometry('250x150')
-        self.title('Assessment')
-        self.font = Font(family='Tahoma', size=9)
-
-        self.grid()
-        self.grid_columnconfigure(0,weight=1)
-        self.grid_columnconfigure(1,weight=1)
-        self.grid_columnconfigure(2,weight=1)
-        self.grid_rowconfigure(0,weight=5)
-        self.grid_rowconfigure(4,weight=5)
-        self.grid_rowconfigure(5, weight=2)
-        self.grid_rowconfigure(6, weight=2)
-        self.resizable(False, False)
-
-        self.entry_one = Entry(self, font=self.font)
-        self.entry_one.grid(column=2, row=0, sticky='WS')
-
-        self.entry_two = Entry(self, font=self.font)
-        self.entry_two.grid(column=2, row=1, sticky='WS')
-
-        self.entry_three = Entry(self, font=self.font)
-        self.entry_three.grid(column=2, row=2, sticky='WS')
-
-        self.entry_four = Entry(self, font=self.font)
-        self.entry_four.grid(column=2, row=3, sticky='WS')
-
-        self.button_one = tkinter.Button(self, text='Query', font=self.font, width=6, height=1, )
-        self.button_one.grid(column=1, row=4, sticky='S')
-
-        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=6, height=1)
-        self.button_two.grid(column=1, row=5, sticky='N')
-
-        self.label_one = Label(self, text='Facility ID', font=self.font)
-        self.label_one.grid(column=1, row=0, sticky='WS')
-
-        self.label_two = Label(self, text='PC ID', font=self.font)
-        self.label_two.grid(column=1, row=1, sticky='WS')
-
-        self.label_three = Label(self, text='Location', font=self.font)
-        self.label_three.grid(column=1, row=2, sticky='WS')
-
-        self.label_four = Label(self, text='Comment', font=self.font)
-        self.label_four.grid(column=1, row=3, sticky='WS')
-
-        self.int_variable_one = IntVar(self, 0)
-        self.int_variable_two = IntVar(self, 0)
-
-        self.check_one = Checkbutton(self, variable=self.int_variable_one)
-        self.check_one.grid(column=2, row=4, sticky='WS',)
-
-        self.check_one = Checkbutton(self, variable=self.int_variable_two)
-        self.check_one.grid(column=2, row=5, sticky='NWS')
 
     def get_os_name(self):
         for os in self.wmi.Win32_OperatingSystem():
@@ -130,20 +77,93 @@ class Assessment(Tk):
         for computer in self.wmi.Win32_ComputerSystem():
             return computer.username
 
+    def query_system(self, event):
+        self.manufacturer = self.get_manufacturer()
+        self.os_name = self.get_os_name()
+        self.model = self.get_model()
+        self.version = self.get_os_version()
+        self.install_date = self.get_install_date()
+        self.architecture = self.get_architecture()
+        self.domain = self.get_domain()
+        self.processor = self.get_processor()
+        self.memory = self.get_memory()
+        self.serial = self.get_serial()
+        self.network = self.get_network_address()
+        self.antivirus = self.get_antivirus()
+        self.last_user = self.get_last_user()
+
+    def initialize(self):
+        self.geometry('250x150')
+        self.title('Assessment')
+        self.font = Font(family='Tahoma', size=9)
+
+        self.grid()
+        self.grid_columnconfigure(0,weight=0)
+        self.grid_columnconfigure(1,weight=2)
+        self.grid_columnconfigure(2,weight=3)
+        self.grid_rowconfigure(0,weight=5)
+        self.grid_rowconfigure(4,weight=5)
+        self.grid_rowconfigure(5, weight=2)
+        self.grid_rowconfigure(6, weight=2)
+        self.resizable(False, False)
+
+        self.entry_one = Entry(self, font=self.font)
+        self.entry_one.grid(column=2, row=0, sticky='WS')
+
+        self.entry_two = Entry(self, font=self.font)
+        self.entry_two.grid(column=2, row=1, sticky='WS')
+
+        self.entry_three = Entry(self, font=self.font)
+        self.entry_three.grid(column=2, row=2, sticky='WS')
+
+        self.entry_four = Entry(self, font=self.font)
+        self.entry_four.grid(column=2, row=3, sticky='WS')
+
+        self.button_one = tkinter.Button(self, text='Query', font=self.font, width=4, height=1, padx=20)
+        self.button_one.grid(column=1, row=4, sticky='SE')
+        self.button_one.bind('<Button-1>', self.query_system)
+
+        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=4, height=1, padx=20)
+        self.button_two.grid(column=1, row=5, sticky='NE')
+
+        self.label_one = Label(self, text='Facility ID', font=self.font)
+        self.label_one.grid(column=1, row=0, sticky='WS', padx=10)
+
+        self.label_two = Label(self, text='PC ID', font=self.font)
+        self.label_two.grid(column=1, row=1, sticky='WS', padx=10)
+
+        self.label_three = Label(self, text='Location', font=self.font)
+        self.label_three.grid(column=1, row=2, sticky='WS', padx=10)
+
+        self.label_four = Label(self, text='Comment', font=self.font)
+        self.label_four.grid(column=1, row=3, sticky='WS', padx=10)
+
+        self.int_variable_one = IntVar(self, 1)
+        self.int_variable_two = IntVar(self, 0)
+
+        self.label_five = Label(self, text='OK', font=self.font, anchor='s', pady=4)
+        self.label_five.grid(column=2, row=4, sticky='SW')
+
+        self.label_six = Label(self, text='OK', font=self.font, anchor='sw')
+        self.label_six.grid(column=2, row=5, sticky='W')
+
+        self.frame_one = Frame(self, relief='sunken', borderwidth=0)
+        self.frame_one.grid(column=2, row=4, rowspan=2, columnspan=3, sticky='E')
+
+        self.label_seven = Label(self.frame_one, text='SQL', font=self.font)
+        self.label_seven.grid(column=2, row=4, sticky='SE', padx=50)
+
+        self.label_eight = Label(self.frame_one, text='Excel', font=self.font)
+        self.label_eight.grid(column=2, row=5, sticky='NE', padx=50, pady=2)
+
+        self.check_one = Checkbutton(self.frame_one, variable=self.int_variable_one, borderwidth=0)
+        self.check_one.grid(column=2, row=4, sticky='SE', padx=20)
+        self.check_one.config(state='disable')
+
+        self.check_two = Checkbutton(self.frame_one, variable=self.int_variable_two, borderwidth=0)
+        self.check_two.grid(column=2, row=5, sticky='E', padx=20)
+        self.check_one.config(state='disable')
+
 if __name__ == "__main__":
     app = Assessment(None)
-    print(app.get_name())
-    print(app.get_manufacturer())
-    print(app.get_os_name())
-    print(app.get_model())
-    print(app.get_os_version())
-    print(app.get_install_date())
-    print(app.get_architecture())
-    print(app.get_domain())
-    print(app.get_processor())
-    print(app.get_memory())
-    print(app.get_serial())
-    print(app.get_network_address())
-    print(app.get_antivirus())
-    print(app.get_last_user())
     app.mainloop()
