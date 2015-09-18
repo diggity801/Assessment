@@ -4,7 +4,10 @@ from win32com.client import GetObject
 import wmi
 import datetime
 from openpyxl import *
+import win32api
 import os
+import subprocess
+from distutils.version import StrictVersion
 
 class Assessment(Tk):
     def __init__(self, parent):
@@ -79,18 +82,20 @@ class Assessment(Tk):
             return computer.username
 
     def write_excel(self, event):
-        if os.path.isfile('test.xlsx'):
-            self.wb = load_workbook('test.xlsx')
-            self.ws = self.wb.active
-            self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
-            self.wb.save('test.xlsx')
-        else:
-            self.wb = Workbook()
-            self.ws = self.wb.active
-            self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
-            self.wb.save('test.xlsx')
+        if self.button_two['state'] != 'disable' and self.button_two['state'] != 'disabled':
+            if os.path.isfile('test.xlsx'):
+                self.wb = load_workbook('test.xlsx')
+                self.ws = self.wb.active
+                self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
+                self.wb.save('test.xlsx')
+            else:
+                self.wb = Workbook()
+                self.ws = self.wb.active
+                self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
+                self.wb.save('test.xlsx')
 
-    def query_system(self, event):
+    def query_system(self):
+        self.button_two['state'] = 'active'
         self.manufacturer = self.get_manufacturer()
         self.name = self.get_name()
         self.os_name = self.get_os_name()
@@ -110,6 +115,25 @@ class Assessment(Tk):
         self.location = str(self.entry_three.get())
         self.comment = str(self.entry_four.get())
 
+    def multi_step(self, event):
+        self.query_system()
+        self.install_citrix()
+
+    def install_citrix(self):
+        try:
+            self.info = win32api.GetFileVersionInfo(r'C:\Program Files (x86)\Citrix\ICA Client\Receiver\Receiver.exe', '\\')
+            self.ms = self.info['FileVersionMS']
+            self.ls = self.info['FileVersionLS']
+            self.__version__ = "{}.{}.{}".format(win32api.HIWORD(self.ms), win32api.LOWORD(self.ms), win32api.HIWORD(self.ls))
+        except:
+            self.__version__ = None
+
+        if StrictVersion(self.__version__) < StrictVersion('3.3.0'):
+            try:
+                subprocess.call('CitrixReceiverEnterprise.exe /silent /noreboot ENABLE_SSON=No ALLOWSAVEPWD=A ENABLE_DYNAMIC_CLIENT_NAME=Yes SERVER_LOCATION=http://pnagent.vcpi.com/Citrix/PNAgent/config.xml')
+            except:
+                pass
+
     def initialize(self):
         self.geometry('250x150')
         self.title('Assessment')
@@ -120,9 +144,9 @@ class Assessment(Tk):
         self.grid_columnconfigure(1,weight=2)
         self.grid_columnconfigure(2,weight=3)
         self.grid_rowconfigure(0,weight=5)
-        self.grid_rowconfigure(4,weight=5)
-        self.grid_rowconfigure(5, weight=2)
-        self.grid_rowconfigure(6, weight=2)
+        self.grid_rowconfigure(4,weight=10)
+        self.grid_rowconfigure(5, weight=4)
+        self.grid_rowconfigure(6, weight=3)
         self.resizable(False, False)
 
         self.entry_one = Entry(self, font=self.font)
@@ -139,9 +163,9 @@ class Assessment(Tk):
 
         self.button_one = tkinter.Button(self, text='Query', font=self.font, width=4, height=1, padx=20)
         self.button_one.grid(column=1, row=4, sticky='SE')
-        self.button_one.bind('<Button-1>', self.query_system)
+        self.button_one.bind('<Button-1>', self.multi_step)
 
-        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=4, height=1, padx=20)
+        self.button_two = tkinter.Button(self, text='Save',font=self.font, width=4, height=1, padx=20, state='disabled')
         self.button_two.grid(column=1, row=5, sticky='NE')
         self.button_two.bind('<Button-1>', self.write_excel)
 
@@ -157,7 +181,7 @@ class Assessment(Tk):
         self.label_four = Label(self, text='Comment', font=self.font)
         self.label_four.grid(column=1, row=3, sticky='WS', padx=10)
 
-        self.int_variable_one = IntVar(self, 1)
+        self.int_variable_one = IntVar(self, 0)
         self.int_variable_two = IntVar(self, 0)
 
         self.label_five = Label(self, text='OK', font=self.font, anchor='s', pady=4)
@@ -173,7 +197,7 @@ class Assessment(Tk):
         self.label_seven.grid(column=2, row=4, sticky='SE', padx=50)
 
         self.label_eight = Label(self.frame_one, text='Excel', font=self.font)
-        self.label_eight.grid(column=2, row=5, sticky='NE', padx=50, pady=2)
+        self.label_eight.grid(column=2, row=5, sticky='NE', padx=50, pady=4)
 
         self.check_one = Checkbutton(self.frame_one, variable=self.int_variable_one, borderwidth=0)
         self.check_one.grid(column=2, row=4, sticky='SE', padx=20)
