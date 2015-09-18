@@ -3,7 +3,8 @@ from tkinter.font import *
 from win32com.client import GetObject
 import wmi
 import datetime
-import threading
+from openpyxl import *
+import os
 
 class Assessment(Tk):
     def __init__(self, parent):
@@ -25,7 +26,7 @@ class Assessment(Tk):
             if computer.manufacturer != 'To Be Filled By O.E.M.':
                 return computer.manufacturer
             else:
-                return None
+                return str(None)
 
     def get_name(self):
         for computer in self.wmi.Win32_ComputerSystem():
@@ -36,7 +37,7 @@ class Assessment(Tk):
             if computer.model != 'To Be Filled By O.E.M.':
                 return computer.model
             else:
-                return None
+                return str(None)
 
     def get_install_date(self):
         for os in self.wmi.Win32_OperatingSystem():
@@ -63,7 +64,7 @@ class Assessment(Tk):
             if bios.serialnumber != 'To Be Filled By O.E.M.':
                 return bios.serialnumber
             else:
-                return None
+                return str(None)
 
     def get_network_address(self):
         return self.wmi.Win32_NetworkAdapterConfiguration()[1].ipaddress[0]
@@ -77,8 +78,21 @@ class Assessment(Tk):
         for computer in self.wmi.Win32_ComputerSystem():
             return computer.username
 
+    def write_excel(self, event):
+        if os.path.isfile('test.xlsx'):
+            self.wb = load_workbook('test.xlsx')
+            self.ws = self.wb.active
+            self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
+            self.wb.save('test.xlsx')
+        else:
+            self.wb = Workbook()
+            self.ws = self.wb.active
+            self.ws.append([self.assessment_id, self.location, self.name, self.manufacturer, self.os_name, self.processor, self.memory, self.model, self.serial, self.comment, self.network])
+            self.wb.save('test.xlsx')
+
     def query_system(self, event):
         self.manufacturer = self.get_manufacturer()
+        self.name = self.get_name()
         self.os_name = self.get_os_name()
         self.model = self.get_model()
         self.version = self.get_os_version()
@@ -91,6 +105,10 @@ class Assessment(Tk):
         self.network = self.get_network_address()
         self.antivirus = self.get_antivirus()
         self.last_user = self.get_last_user()
+        self.facility = str(self.entry_one.get())
+        self.assessment_id = str(self.entry_two.get())
+        self.location = str(self.entry_three.get())
+        self.comment = str(self.entry_four.get())
 
     def initialize(self):
         self.geometry('250x150')
@@ -125,6 +143,7 @@ class Assessment(Tk):
 
         self.button_two = tkinter.Button(self, text='Save',font=self.font, width=4, height=1, padx=20)
         self.button_two.grid(column=1, row=5, sticky='NE')
+        self.button_two.bind('<Button-1>', self.write_excel)
 
         self.label_one = Label(self, text='Facility ID', font=self.font)
         self.label_one.grid(column=1, row=0, sticky='WS', padx=10)
